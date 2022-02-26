@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"html/template"
+	"github.com/nathanmbicho/snippetbox/pkg/models"
 	"net/http"
 	"strconv"
 )
@@ -15,26 +15,37 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	//check if files exists
-	if err != nil {
-		//access error to application logger
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, nil)
-	//check if route exists
+	//get latest snippets from SnippetModel.Latest
+	s, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
+
+	for _, snippet := range s {
+		fmt.Fprintf(w, "%v\n\n", snippet)
+	}
+
+	//files := []string{
+	//	"./ui/html/home.page.tmpl",
+	//	"./ui/html/base.layout.tmpl",
+	//	"./ui/html/footer.partial.tmpl",
+	//}
+	//
+	//ts, err := template.ParseFiles(files...)
+	////check if files exists
+	//if err != nil {
+	//	//access error to application logger
+	//	app.serverError(w, err)
+	//	return
+	//}
+	//
+	//err = ts.Execute(w, nil)
+	////check if route exists
+	//if err != nil {
+	//	app.serverError(w, err)
+	//	return
+	//}
 }
 
 /**
@@ -50,7 +61,17 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display snippet with id :- %d..", id)
+	// fetch data using SnippetModel.get and if error
+	s, err := app.snippets.Get(id)
+	if err == models.ErrNoRecord {
+		app.notFound(w)
+		return
+	} else if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	fmt.Fprintf(w, "%v", s)
 }
 
 /**
