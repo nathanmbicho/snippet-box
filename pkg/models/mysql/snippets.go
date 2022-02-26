@@ -33,7 +33,25 @@ func (m *SnippetModel) Insert(title, content, expires string) (int, error) {
 
 // Get specific snipped by request id
 func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
-	return nil, nil
+	//select sql statement
+	stmt := `SELECT id, title, content, created, expires FROM snippets 
+			WHERE expires > UTC_TIMESTAMP() AND id = ?`
+
+	//execute statement using QueryRow passing stmt, & id
+	row := m.DB.QueryRow(stmt, id)
+
+	// Initialize a pointer to a new zeroed Snippet struct.
+	s := &models.Snippet{}
+
+	//use row.Scan to return field sql.Row as our Snippet struct and user model.ErrorNoRecord if no record is found
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+	if err == sql.ErrNoRows { //if sql.Row error found
+		return nil, models.ErrNoRecord
+	} else if err != nil { //if any other error
+		return nil, err
+	}
+
+	return s, nil
 }
 
 // Latest - most recently created snippets
