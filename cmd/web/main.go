@@ -36,6 +36,7 @@ func main() {
 		Handler:  app.routes(),
 	}
 
+	//run server
 	infoLog.Printf("Server starting on %s", *addr)
 	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
