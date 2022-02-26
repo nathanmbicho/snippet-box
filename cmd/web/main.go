@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"github.com/nathanmbicho/snippetbox/pkg/models/mysql"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +15,7 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *mysql.SnippetModel
 }
 
 //wrap sql.Open() and returns a sql.DB connection pool for given DSN
@@ -55,6 +57,9 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &mysql.SnippetModel{
+			DB: db,
+		},
 	}
 
 	//initialize http.Server struct
