@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 //home
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	//check if path and return not found
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -23,22 +22,29 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ts, err := template.ParseFiles(files...)
+	//check if files exists
 	if err != nil {
-		log.Println(err.Error())
+		//access application logger
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal server error", 500)
 		return
 	}
 
 	err = ts.Execute(w, nil)
+	//check if route exists
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal server error", 500)
 		return
 	}
 }
 
-//show snippet
-func showSnippet(w http.ResponseWriter, r *http.Request) {
+/**
+show snippet
+define showSnippet as method against *application
+*/
+
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	//check if id passed is valid
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
@@ -49,8 +55,11 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Display snippet with id :- %d..", id)
 }
 
-//create new snippet
-func createSnippet(w http.ResponseWriter, r *http.Request) {
+/**
+create new snippet
+define createSnippet as method against *application
+*/
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	//check create method
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
