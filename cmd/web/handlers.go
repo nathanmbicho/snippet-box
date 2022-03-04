@@ -23,30 +23,30 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range s {
-		fmt.Fprintf(w, "%v\n\n", snippet)
+	data := &templateData{
+		Snippets: s,
 	}
 
-	//files := []string{
-	//	"./ui/html/home.page.tmpl",
-	//	"./ui/html/base.layout.tmpl",
-	//	"./ui/html/footer.partial.tmpl",
-	//}
-	//
-	//ts, err := template.ParseFiles(files...)
-	////check if files exists
-	//if err != nil {
-	//	//access error to application logger
-	//	app.serverError(w, err)
-	//	return
-	//}
-	//
-	//err = ts.Execute(w, nil)
-	////check if route exists
-	//if err != nil {
-	//	app.serverError(w, err)
-	//	return
-	//}
+	files := []string{
+		"./ui/html/home.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+		"./ui/html/footer.partial.tmpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	//check if files exists
+	if err != nil {
+		//access error to application logger
+		app.serverError(w, err)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	//check if route exists
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 }
 
 /**
