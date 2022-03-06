@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/nathanmbicho/snippetbox/pkg/models"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -23,30 +22,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &templateData{
+	app.render(w, r, "home.page.tmpl", &templateData{
 		Snippets: s,
-	}
-
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	//check if files exists
-	if err != nil {
-		//access error to application logger
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	//check if route exists
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	})
 }
 
 /**
@@ -72,30 +50,10 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//instance of templateData struct holding the snippet data
-	data := &templateData{
+	app.render(w, r, "show.page.tmpl", &templateData{
 		Snippet: s,
-	}
+	})
 
-	files := []string{
-		"./ui/html/show.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data) //pass model.Snippet struct data
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	fmt.Fprintf(w, "%v", s)
 }
 
 /**
