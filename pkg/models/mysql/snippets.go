@@ -67,7 +67,12 @@ func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
 		return nil, err
 	}
 
-	defer rows.Close() //ensure sql.Rows result set is closed properly
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows) //ensure sql.Rows result set is closed properly
 
 	//initialize empty slice to hold model.Snippets Object
 	var snippets []*models.Snippet

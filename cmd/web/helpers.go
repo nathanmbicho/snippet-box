@@ -64,5 +64,8 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
-	buf.WriteTo(w)
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		return
+	}
 }

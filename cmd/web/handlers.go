@@ -22,7 +22,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, "home.page.tmpl", &templateData{
+	app.render(w, r, "home.page.gohtml", &templateData{
 		Snippets: s,
 	})
 }
@@ -50,7 +50,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, "show.page.tmpl", &templateData{
+	app.render(w, r, "show.page.gohtml", &templateData{
 		Snippet: s,
 	})
 

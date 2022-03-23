@@ -53,7 +53,12 @@ func main() {
 	}
 
 	// defer a call to db.Close(), so that the connection pool is closed before the main() function exits.
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			errorLog.Fatal(err)
+		}
+	}(db)
 
 	//initialize new template cache
 	templateCache, err := newTemplateCache("./ui/html/")

@@ -29,8 +29,8 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	//initialize new map struct to act as the cache
 	cache := map[string]*template.Template{}
 
-	//return all file paths  with extension '.page.tmpl' as a slice using filepath.Glob function
-	pages, err := filepath.Glob(filepath.Join(dir, "*.page.tmpl"))
+	//return all file paths  with extension '.page.gohtml' as a slice using filepath.Glob function
+	pages, err := filepath.Glob(filepath.Join(dir, "*.page.gohtml"))
 	if err != nil {
 		return nil, err
 	}
@@ -47,18 +47,18 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 		}
 
 		//parse 'layout' templates in our template set
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.tmpl"))
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.gohtml"))
 		if err != nil {
 			return nil, err
 		}
 
 		//parse 'partial' templates in our template set
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.tmpl"))
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.gohtml"))
 		if err != nil {
 			return nil, err
 		}
 
-		//add template set to the cache using the name of the page as the key like 'home.page.tmpl'
+		//add template set to the cache using the name of the page as the key like 'home.page.gohtml'
 		cache[name] = ts
 	}
 
