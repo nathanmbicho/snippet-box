@@ -9,12 +9,6 @@ import (
 
 //home
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	//check if path and return not found
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
 	//get latest snippets from SnippetModel.Latest
 	s, err := app.snippets.Latest()
 	if err != nil {
@@ -34,7 +28,7 @@ define showSnippet as method against *application
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	//check if id passed is valid
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -56,17 +50,16 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//createSnippetForm
+func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Create a new snippet...."))
+}
+
 /**
 create new snippet
 define createSnippet as method against *application
 */
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	//check create method
-	if r.Method != "POST" {
-		w.Header().Set("Allow", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
 
 	//insert dummy data
 	title := "O snail"
@@ -80,5 +73,5 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//redirect to created snippet
-	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
