@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/nathanmbicho/snippetbox/pkg/forms"
 	"github.com/nathanmbicho/snippetbox/pkg/models"
 	"net/http"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 )
 
 //home
@@ -54,7 +53,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 //createSnippetForm
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.gohtml", nil)
+	app.render(w, r, "create.page.gohtml", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 /**
@@ -70,43 +71,22 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//use r.PostForm.Get to get relevant data from r.PostForm map
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expires := r.PostForm.Get("expires")
+	//forms.Form struct to get relevant posted form data and use the validation methods to check the content
+	form := forms.New(r.PostForm)
+	form.Required("title", "content", "expires")
+	form.MaxLength("title", 100)
+	form.PermittedValues("expires", "365", "7", "1")
 
-	//initialize map to hold validation errors
-	errors := make(map[string]string)
-
-	//title - check if empty or exceeds 100 characters
-	if strings.TrimSpace(title) == "" {
-		errors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		errors["title"] = "This field is too long (maximum is 100 characters)"
-	}
-
-	//content - check if blank
-	if strings.TrimSpace(content) == "" {
-		errors["content"] = "This field cannot be blank"
-	}
-
-	//expires - check if blank or if valid
-	if strings.TrimSpace(expires) == "" {
-		errors["expires"] = "This field cannot be blank"
-	} else if expires != "365" && expires != "7" && expires != "1" {
-		errors["expires"] = "This field is invalid"
-	}
-
-	if len(errors) > 0 {
+	//check form.Valid if it returns len of errors or isn't valid, then redisplay the template passing in form.Form data
+	if !form.Valid() {
 		app.render(w, r, "create.page.gohtml", &templateData{
-			FormErrors: errors,
-			FormData:   r.PostForm,
+			Form: form,
 		})
 		return
 	}
 
 	//call SnippetModel.Insert method and pass data to execute
-	id, err := app.snippets.Insert(title, content, expires)
+	id, err := app.snippets.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
 	if err != nil {
 		app.serverError(w, err)
 		return

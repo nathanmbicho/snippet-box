@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/nathanmbicho/snippetbox/pkg/forms"
 	"github.com/nathanmbicho/snippetbox/pkg/models"
 	"html/template"
-	"net/url"
 	"path/filepath"
 	"time"
 )
@@ -11,8 +11,7 @@ import (
 //define holding structure for any dynamic data we want to pass to HTML templates
 type templateData struct {
 	CurrentYear int
-	FormData    url.Values        //hold form data
-	FormErrors  map[string]string //hold form errors
+	Form        *forms.Form       //hold form data & errors
 	Snippet     *models.Snippet   // return single data
 	Snippets    []*models.Snippet // return slice of data
 }
