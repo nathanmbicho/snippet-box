@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"github.com/nathanmbicho/snippetbox/pkg/models/mysql"
@@ -74,6 +75,7 @@ func main() {
 	//use session.New() function to initialize a new session manager by passing the secret key as parameter then configure it to expire after 12 hours
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true
 
 	//initialize a new instance of application containing the dependencies
 	app := &application{
@@ -86,15 +88,25 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	//initialize a tls.Config struct to hold the non-default TLS settings we want the server to use
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	//initialize http.Server struct
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	//run server
 	infoLog.Printf("Server starting on %s", *addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
