@@ -11,6 +11,7 @@ import (
 //define holding structure for any dynamic data we want to pass to HTML templates
 type templateData struct {
 	AuthenticatedUser int
+	CSRFToken         string
 	CurrentYear       int
 	Flash             string
 	Form              *forms.Form       //hold form data & errors

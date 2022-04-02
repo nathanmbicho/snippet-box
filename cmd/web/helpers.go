@@ -40,9 +40,11 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	if td == nil {
 		td = &templateData{}
 	}
-	td.AuthenticatedUser = app.authenticatedUser(r)
+
+	td.CSRFToken = nosurf.Token(r) //add CSRF token to template data and make it available each time when rendering the page form
 	td.CurrentYear = time.Now().Year()
 	td.Flash = app.session.PopString(r, "flash") // automate display of any flash message on any page
+	td.AuthenticatedUser = app.authenticatedUser(r)
 	return td
 
 }

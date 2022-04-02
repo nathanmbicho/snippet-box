@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 //secureHeaders :- additional security measures to help prevent XSS and Click jacking attacks
@@ -44,4 +46,16 @@ func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+//noSurf -middleware function which uses a customized CSRF cookie with the Secure, Path and HttpOnly flags set
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+
+	return csrfHandler
 }
