@@ -34,3 +34,14 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+//requireAuthenticatedUser :- check if user is authenticated if tries to visit any route
+func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.authenticatedUser(r) == 0 {
+			http.Redirect(w, r, "/user/login", http.StatusFound)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
