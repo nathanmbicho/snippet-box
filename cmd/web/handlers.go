@@ -151,15 +151,45 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 
 //loginUserForm - display the user login form
 func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display the user login form...")
+	app.render(w, r, "login.page.gohtml", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 //loginUser - authenticate and login the user
 func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Authenticate and login the user...")
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	//check if credentials are valid else return generic message to login page
+	form := forms.New(r.PostForm)
+	id, err := app.users.Authenticate(form.Get("email"), form.Get("password"))
+	if err == models.ErrInvalidCredentials {
+		form.Errors.Add("generic", "Email and Password are incorrect.")
+		app.render(w, r, "login.page.gohtml", &templateData{Form: form})
+		return
+	} else if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	//if valid add ID to the current user session so that they are now 'logged in'
+	app.session.Put(r, "userID", id)
+
+	//redirect to create snippet page
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
 //logoutUser - logout the user
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user...")
+	//remove userID from session data to logout the user
+	app.session.Remove(r, "userID")
+
+	//add flash message to session to confirm logout of the user
+	app.session.Put(r, "flash", "You've been logged out successfully.")
+	//redirect to home page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
