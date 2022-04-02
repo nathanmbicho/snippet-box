@@ -1,0 +1,32 @@
+{{ template "base" .}}
+{{ define "title" }}Signup{{ end }}
+{{ define "body" }}
+    <form action="/user/signup" method="post" novalidate>
+        {{ with .Form }}
+            <div>
+                <label for="name">Name:</label>
+                {{ with .Errors.Get "name" }}
+                    <label for="name" class="error">{{.}}</label>
+                {{ end }}
+                <input type="text" name="name" id="name" value="{{ .Get "name" }}">
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                {{ with .Errors.Get "email" }}
+                    <label for="email" class="error">{{.}}</label>
+                {{ end }}
+                <input type="email" id="email" name="email" value="{{ .Get "email" }}">
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                {{ with .Errors.Get "password" }}
+                    <label for="password" class="error">{{.}}</label>
+                {{ end }}
+                <input type="password" id="password" name="password">
+            </div>
+            <div>
+                <input type="submit" value="Signup">
+            </div>
+        {{ end }}
+    </form>
+{{ end }}

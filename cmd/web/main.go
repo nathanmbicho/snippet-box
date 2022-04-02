@@ -22,6 +22,7 @@ type application struct {
 	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
+	users         *mysql.UserModel
 }
 
 //wrap sql.Open() and returns a sql.DB connection pool for given DSN
@@ -86,6 +87,9 @@ func main() {
 			DB: db,
 		},
 		templateCache: templateCache,
+		users: &mysql.UserModel{
+			DB: db,
+		},
 	}
 
 	//initialize a tls.Config struct to hold the non-default TLS settings we want the server to use
@@ -106,7 +110,7 @@ func main() {
 	}
 
 	//run server
-	infoLog.Printf("Server starting on %s", *addr)
+	infoLog.Printf("Server starting on https://localhost%s", *addr)
 	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
