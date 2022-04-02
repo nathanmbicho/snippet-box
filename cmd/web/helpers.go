@@ -40,6 +40,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	if td == nil {
 		td = &templateData{}
 	}
+	td.AuthenticatedUser = app.authenticatedUser(r)
 	td.CurrentYear = time.Now().Year()
 	td.Flash = app.session.PopString(r, "flash") // automate display of any flash message on any page
 	return td
@@ -69,4 +70,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	if err != nil {
 		return
 	}
+}
+
+//authenticatedUser -return ID of the current user from the session - 0 if not authenticated
+func (app *application) authenticatedUser(r *http.Request) int {
+	return app.session.GetInt(r, "userID")
 }
